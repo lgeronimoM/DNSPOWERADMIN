@@ -14,11 +14,9 @@ DNS Web
 
 Descripción
 ------------------
-Service BIND.
+Servicio de dns a instalar "BIND".
 
 Aplicacion web con flask en python version 3 para la administracion de nombres de dominio en una red de intranet. 
-
-It is programmed in python version 3 and uses the flask micro framework for web development, its main configuration engine is the ansible automation tool and a Sqlite 3 database.
 
 Sistema Operativo
 ------------------
@@ -54,3 +52,8 @@ sudo firewall-cmd --permanent --add-port=4000/tcp
 sudo firewall-cmd --reload
 
 sudo systemctl start dnsweb
+
+acceso web
+------------------
+usuario: admin
+contraseña: dnsadmin

@@ -103,7 +103,7 @@ def pie():
     opacity='.8',
     opacity_hover='.6',
     transition='400ms ease-in',
-    colors=('#4a148c', '#880e4f', '#b71c1c', '#0d47a1'))
+    colors=('#4a148c', '#880e4f', '#b71c1c', '#0d47a1', '#d4e157', '#ffea00', '#ff80ab' ))
     pie_chart = pygal.Pie(half_pie=True, width=400, height=200, style=custom_style)
     url = cf.APIHOSETD
     headers = {'Content-type': 'application/json'}
