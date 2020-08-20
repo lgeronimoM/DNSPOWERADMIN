@@ -14,13 +14,14 @@ class Config(object):
     #EPASS = ''
     #REMAIL = ''
     LOG_LEVEL = logging.DEBUG
+    SECRETKEY='desDNS'
 
 class ProductionConfig(Config):
     DEBUG=False
     # properties host
     SERVER='0.0.0.0'
     # properties SQlite
-    DB_DIR = 'sqlite:///db/data.db'
+    DB_DIR = 'sqlite:////etc/dnsweb/db/data.db'
     # Log
     LOG_DIR='/var/log/dnsweb/dns_web_%d_%m_%Y.log'
     # Port
@@ -39,9 +40,9 @@ class DevelopmentConfig(Config):
     # properties host
     SERVER='127.0.0.1'
     # properties SQlite
-    DB_DIR = 'sqlite:///db/des-data.db'
+    DB_DIR = 'sqlite:////mnt/c/Users/LP-0220/Documents/Desarrollos/flask/dnsWEB/db/des-data.db'
     # Log
-    LOG_DIR='dns_web_%d_%m_%Y.log'
+    LOG_DIR='logs/dns_web_%d_%m_%Y.log'
     # Port
     PRTO = 8292
     #service

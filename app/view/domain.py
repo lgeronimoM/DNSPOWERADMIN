@@ -51,15 +51,13 @@ logging.info('Comenzando la aplicacion...')
 
 url_api_ansible = "http://"+cf.SERVER+":"+str(cf.PRTO)+"/core/v1.0/ansible"
 headers = {"Content-type": "application/json"}
-
+urlhosted = cf.APIHOSETD
 ####################### Endpoints #############################
 
 @app.route('/hostedzone')
 @login_required
 def hostedZone():
-    url = cf.APIHOSETD
-    headers = {'Content-type': 'application/json'}
-    hosting = requests.get(url, headers=headers, verify=False).json()
+    hosting = requests.get(urlhosted, headers=headers, verify=False).json()
     logging.info('Access page HostedZone')
     user = current_user.username
     queryuser = db.session.query(Users).filter(Users.username==user).first()
@@ -120,9 +118,7 @@ def addhostedzone():
 @login_required
 def deletedomainzone():
     idf = int(request.form['id'])
-    url = cf.APIHOSETD
-    headers = {'Content-type': 'application/json'}
-    hosting = requests.get(url, headers=headers, verify=False).json()
+    hosting = requests.get(urlhosted, headers=headers, verify=False).json()
     for host in hosting:
         if int(host['id'])==idf:
             db.session.query(Hosting).filter(Hosting.id == idf).delete(synchronize_session=False)
@@ -162,35 +158,46 @@ def updatedomainzone():
     return redirect(url_for('hostedZone'))
 
 #################################### dns domain ##################################
-@app.route('/domain/<int:page_num>')
+@app.route('/domain', methods=['GET'], defaults={"page_num": 1})
+@app.route('/domain/<int:page_num>', methods=['GET'])
 @login_required
 def domain(page_num):
-    url=cf.APIHOSETD
     value=request.args.get('res')
     mess=request.args.get('mess')
+    filteruser=request.args.get('filteruser')
+    filtro=request.args.get('findname')
     domain=db.session.query(Domain).paginate(per_page=10, page=page_num, error_out=True)
     name=""
-    headers = {'Content-type': 'application/json'}
-    hosting = requests.get(url, headers=headers, verify=False).json()
+    hosting = requests.get(urlhosted, headers=headers, verify=False).json()
+    findservers=False
     if value:
         query = db.session.query(Hosting).filter(Hosting.id == int(value)).first()
         name=query.zone+'.'+query.domain
         logging.info('Consult Domain and show on table')
         domain=db.session.query(Domain).filter(Domain.host==int(value)).paginate(per_page=10, page=page_num, error_out=True)
+        if filtro:
+            search = "%{}%".format(filtro)
+            domain=db.session.query(Domain).filter(and_(Domain.name.like(search), Domain.host==int(value))).paginate(per_page=10, page=page_num, error_out=True)
+            findservers=True
     logging.info('Access page Domain')
     user = current_user.username
     queryuser = db.session.query(Users).filter(Users.username==user).first()
     mail = queryuser.email
-    return render_template('domain.html', user = user, mail=mail, zone=hosting, data=domain, name=name, mess=mess, valueres=value)
+    return render_template('domain.html', filteruser=value, user = user, mail=mail, zone=hosting, data=domain, name=name, mess=mess, valueres=value)
+
+@app.route('/pagedomainadd', methods=['POST'])
+@login_required
+def pagedomainadd():
+    user = current_user.username
+    queryuser = db.session.query(Users).filter(Users.username==user).first()
+    mail = queryuser.email
+    hosting = requests.get(urlhosted, headers=headers, verify=False).json()
+    return render_template('adddomain.html', user=user, mail=mail,  zone=hosting)
 
 @app.route('/core/adddomain', methods=['POST'])
 @login_required
 def adddomain():
-    # api hosting
-    url=cf.APIHOSETD
-    headers = {'Content-type': 'application/json'}
-    apihosting = requests.get(url, headers=headers, verify=False).json()
-    # form
+    apihosting = requests.get(urlhosted, headers=headers, verify=False).json()
     hostingf=request.form['zone']
     namef = str(request.form['name'])
     valuef = str(request.form['value'])
@@ -219,7 +226,7 @@ def adddomain():
     c = result.json()
     db.session.commit()
     logging.info('Add Domain'+namef+' '+tipof+' '+valuef+' '+hostingf)
-    return redirect(url_for('domain', page_num=1, res=hostingf))
+    return redirect(url_for('domain', res=hostingf))
 
 @app.route('/core/editdomain', methods=['POST'])
 @login_required
@@ -236,21 +243,16 @@ def editdomain():
 @app.route('/core/updatedomain', methods=['POST'])
 @login_required
 def updatedomain():
-    # api hosting
-    url=cf.APIHOSETD
-    headers = {'Content-type': 'application/json'}
-    apihosting = requests.get(url, headers=headers, verify=False).json()
-
+    apihosting = requests.get(urlhosted, headers=headers, verify=False).json()
     idf=int(request.form['id'])
     zoneid=int(request.form['iddomain'])
     valuef=str(request.form['valuef'])
     namef=str(request.form['namef'])
     typef=str(request.form['typevalue'])
     domain = db.session.query(Domain).filter(and_(Domain.name==namef,Domain.host==zoneid,Domain.value==valuef)).first()
-
     if domain:
         mensage="This domain have already been added"
-        return redirect(url_for('domain', page_num=1, res=zoneid, mess=mensage))
+        return redirect(url_for('domain', res=zoneid, mess=mensage))
     else:
         db.session.query(Domain).filter(Domain.id == idf).update({'value':valuef,'name':namef})
         db.session.commit()
@@ -270,17 +272,13 @@ def updatedomain():
         content={ "tagsexc": tagsexc, "ipmanage": ipmanage, "passwd": passwd, "user": user }
         result = requests.post(url_api_ansible, json=content, headers=headers, verify=False)
         c = result.json()
-        return redirect(url_for('domain', page_num=1, res=zoneid))
+        return redirect(url_for('domain', res=zoneid))
 
 @app.route('/core/deletedomain', methods=['POST'])
 @login_required
 def deletedomain():
     if request.form['delete_button']:
-        # api hosting
-        url=cf.APIHOSETD
-        headers = {'Content-type': 'application/json'}
-        apihosting = requests.get(url, headers=headers, verify=False).json()
-
+        apihosting = requests.get(urlhosted, headers=headers, verify=False).json()
         zoneid=request.form['iddomain']
         idf = int(request.form['delete_button'])
         db.session.query(Domain).filter(Domain.id == idf).delete(synchronize_session=False)
@@ -365,9 +363,7 @@ def nameconf_master():
     file.write('        check-names master ignore;\n')
     file.write('        check-names response ignore;\n')
     file.write('};\n')
-    url = cf.APIHOSETD
-    headers = {'Content-type': 'application/json'}
-    hosting = requests.get(url, headers=headers, verify=False).json()
+    hosting = requests.get(urlhosted, headers=headers, verify=False).json()
     for zone in hosting:
         file.write('zone "'+zone['zones']+'" {\n') 
         file.write('        type master;\n')
@@ -400,9 +396,7 @@ def nameconf_slave(id):
         file.write('        recursion no;\n')    
     file.write('        version "No disponible";\n')
     file.write('};\n')
-    url = cf.APIHOSETD
-    headers = {'Content-type': 'application/json'}
-    hosting = requests.get(url, headers=headers, verify=False).json()
+    hosting = requests.get(urlhosted, headers=headers, verify=False).json()
     master = db.session.query(Master).filter().first()
     for zone in hosting:
         file.write('zone "'+zone['zones']+'" {\n') 
@@ -417,16 +411,13 @@ def nameconf_slave(id):
 
 def zone_conf():
     logging.info('creating YML file')
-    url = cf.APIHOSETD
-    headers = {'Content-type': 'application/json'}
-    hosting = requests.get(url, headers=headers, verify=False).json()
+    hosting = requests.get(urlhosted, headers=headers, verify=False).json()
     for zone in hosting:
         zonedomain = zone['zones']
         file = open('app/ansible/roles/webadmindns/templates/'+zonedomain+'.zone.j2','w')
         file.write('$ORIGIN '+zonedomain+'.\n')
         file.write('$TTL 86400\n')
         file.write('@   IN  SOA     masterdns.'+zonedomain+'. root.'+zonedomain+'. (\n')
-        #serial = db.session.query(Register).filter().first()
         serial = db.session.query(Register).filter().order_by(desc(Register.id)).first()
         file.write('        '+str(serial.register)+'    ;Serial\n')
         file.write('        3600        ;Refresh\n')
@@ -453,9 +444,7 @@ def zone_conf():
 
 def zone_domain():
     logging.info('creating YML file')
-    url = cf.APIHOSETD
-    headers = {'Content-type': 'application/json'}
-    hosting = requests.get(url, headers=headers, verify=False).json()
+    hosting = requests.get(urlhosted, headers=headers, verify=False).json()
     file = open('app/ansible/roles/webadmindns/vars/main.yml','w')
     file.write('---\n')
     file.write('#configuracion zonas\n')
@@ -487,9 +476,7 @@ def subdomain_conf(zone, dif, namef, valuef, tipof):
         file.write('slavedns'+str(con)+'       IN  A   '+slave.ipslave+'\n')
     master = db.session.query(Master).filter().first()
     file.write('masterdns   IN  A   '+master.ipmaster+'\n')
-    headers = {'Content-type': 'application/json'}
-    url2 = cf.APIDOMAIN+str(dif)
-    domains = requests.get(url2, headers=headers, verify=False).json()
+    domains = requests.get(urlhosted+str(dif), headers=headers, verify=False).json()
     for domain in domains:
         file.write(domain['name']+'           '+domain['typevalue']+'          '+domain['value']+'\n')
         #file.write('};\n')
@@ -500,9 +487,7 @@ def subdomain_conf(zone, dif, namef, valuef, tipof):
 
 def zone_subdomain(zone):
     logging.info('creating YML file')
-    url = cf.APIHOSETD
-    headers = {'Content-type': 'application/json'}
-    hosting = requests.get(url, headers=headers, verify=False).json()
+    hosting = requests.get(urlhosted, headers=headers, verify=False).json()
     file = open('app/ansible/webadmindns.yml','w')
     file.write('---\n')
     file.write('- hosts: dnsservers\n')

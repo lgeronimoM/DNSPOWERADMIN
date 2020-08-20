@@ -1,6 +1,6 @@
 __author__ = 'Luis Geronimo'
-from flask import Flask
 
+from flask import Flask
 #Entorno
 from flask_environments import Environments
 
@@ -13,8 +13,6 @@ from flask_login import LoginManager
 
 app = Flask(__name__)
 
-app.config['SECRET_KEY'] = 'OCML3BRawWEUeaxcuKHLp'
-
 if app.config["ENV"] == "production":
     app.config.from_object("properties.ProductionConfig")
 elif app.config["ENV"] == "development":
@@ -22,12 +20,10 @@ elif app.config["ENV"] == "development":
 else:
     app.config.from_object("properties.TestingConfig")
 
-#Inicializacion de Flask admin
-app.config['SECRET_KEY'] = 'mysecret'
-
 class cf():
     SERVER=app.config["SERVER"]
     PRTO=app.config["PRTO"]
+    SECRETKEY=app.config["SECRETKEY"]
     #PMAIL=app.config["PMAIL"]
     #SMTP=app.config["SMTP"]
     #SEMAIL=app.config["SEMAIL"]
@@ -44,6 +40,7 @@ class cf():
     LOG_LEVEL=app.config["LOG_LEVEL"]
     DEBUG=app.config["DEBUG"]
 
+app.config['SECRET_KEY'] = cf.SECRETKEY
 app.config['SQLALCHEMY_DATABASE_URI'] = cf.DB_DIR
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)

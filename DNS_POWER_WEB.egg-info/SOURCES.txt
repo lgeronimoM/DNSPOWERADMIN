@@ -1,9 +1,0 @@
-setup.py
-DNS_POWER_WEB.egg-info/PKG-INFO
-DNS_POWER_WEB.egg-info/SOURCES.txt
-DNS_POWER_WEB.egg-info/dependency_links.txt
-DNS_POWER_WEB.egg-info/not-zip-safe
-DNS_POWER_WEB.egg-info/requires.txt
-DNS_POWER_WEB.egg-info/top_level.txt
-app/__init__.py
-app/models.py

@@ -3,6 +3,6 @@
   name: "Playbook Webadmin DNS server slaves and masters"
   gather_facts: no
   vars:
-    subDomain: ejemplo2.com
+    subDomain: ejemplo.com
   roles:
     - roles/webadmindns

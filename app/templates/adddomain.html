@@ -1,0 +1,56 @@
+{% extends 'base/base.html' %}
+{% block title %} DNSWEBADMIN Edit {% endblock title%}
+{% block content %}
+    <main class="container">
+       <h5>Administración y registros de subdominios</h5>
+        <div class="row">
+            <form method="POST" action="/core/adddomain">
+            <div class="row">
+                <input type="hidden" value="" name="valueres" required>
+                <div class="input-field col s12 m6 l3">
+                    <select class="blue-text text-darken-2" id="select" name="zone" required>
+                        <option value="" disabled selected>Seleccion el dominio</option>
+                        {% for res in zone %}
+                        <option value="{{res['id']}}">{{res['zones']}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field col s12 m6 l3">
+                    <select class="blue-text text-darken-2" id="select" name="tipo" required>
+                            <option value="" disabled selected>Tipo de subdominio</option>
+                            <option value="A">A Record</option>
+                            <option value="MX">MX Record</option>
+                            <option value="CNAME">CNAME Record</option>
+                            <option value="TXT">TXT Record</option>
+                            <option value="SRV">SRV Record</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field col s12 m6 l3">
+                    <input placeholder="name" id="value" type="text" class="validate" name="name" required>
+                    <label for="name">Nombre del nuevo subdominio</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field col s12 m6 l3">
+                    <input placeholder="Value" id="value" type="text" class="validate" name="value" required>
+                    <label for="Value">Valor</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-field">
+                    <button class="btn waves-effect waves-green green darken-2" type="submit" name="Submit">
+                        Agregar
+                    </button>
+                </div>
+            </div>
+            </form>
+        </div>
+    </main>    
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+{% endblock content %}

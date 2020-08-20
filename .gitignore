@@ -1,5 +1,7 @@
 dns/
 env/
+logs/
+files/
 dns_web_*
 dns_server_*
 stacked_line_chart.svg

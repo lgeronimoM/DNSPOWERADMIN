@@ -2,69 +2,61 @@
 {% block title %} dnsweb {% endblock title%}
 {% block content %}
     <main class="container">
-        <h5>Administración y registros de subdominios</h5>
-        <div class="row"><br>
-            <form method="POST" action="/core/adddomain">
-                <input type="hidden" value="" name="valueres" required>
-                <div class="input-field col s12 m6 l3">
-                    <select class="blue-text text-darken-2" id="select" name="zone" required>
-                        <option value="" disabled selected>Seleccion el dominio</option>
-                        {% for res in zone %}
-                        <option value="{{res['id']}}">{{res['zones']}}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="input-field col s12 m6 l3">
-                    <select class="blue-text text-darken-2" id="select" name="tipo" required>
-                            <option value="" disabled selected>Tipo de subdominio</option>
-                            <option value="A">A Record</option>
-                            <option value="MX">MX Record</option>
-                            <option value="CNAME">CNAME Record</option>
-                            <option value="TXT">TXT Record</option>
-                            <option value="SRV">SRV Record</option>
-                    </select>
-                </div>
-                <div class="input-field col s12 m6 l3">
-                    <input placeholder="name" id="value" type="text" class="validate" name="name" required>
-                    <label for="name">Nombre del nuevo subdominio</label>
-                </div>
-                <div class="input-field col s12 m6 l3">
-                    <input placeholder="Value" id="value" type="text" class="validate" name="value" required>
-                    <label for="Value">Valor</label>
-                </div>
-                <div class="form-field">
-                    <button class="btn waves-effect waves-green green darken-2" type="submit" name="Submit">
-                        Agregar
-                    </button>
-                </div>
-            </form>
-        </div>
-        <div class="row">
-            <form method="GET" action="/domain/1">
-            <h5>Filtrar por zona de dominio</h5>
-                <div class="input-field col s12 m6 l6">
-                    <select class="blue-text text-darken-2" id="select" name="res" required>
-                        <option value="" disabled selected>Selecciona tu zona de dominio aquí</option>
-                        {% for res in zone %}
-                            <option value="{{res['id']}}">{{res['zones']}}</option>
-                        {% endfor %}
-                    </select>
-                    <div class="form-field">
-                        <button class="btn waves-effect waves-green green darken-2" type="submit">filtrarz
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
         <div class="row">
             {% if mess %} 
                 <span class="red-text">{{ mess }}</span>
             {% endif %}
 
             {% if name %}
-                <h5>Zona de dominio: <b class="green-text text-darken-2">{{name}}</b>
-                <a href="/domain/1" class="waves-effect waves-light btn red darken-2">Remover filtro</a></h5>
+            <h5>Zona de dominio: <b class="green-text text-darken-2">{{name}}</b>
+            <a href="/domain/1" class="waves-effect waves-light btn red darken-2">Remover filtro</a></h5>
+            <div class="col s12 m6 l6">
+                <form method="GET" action="/domain">
+                    <h5>Buscar dominio</h5>
+                    <input id="filteruser" type="hidden" value="{{filteruser}}" class="validate" name="res" required>
+                    <div class="input-field col s8 m8 l8">
+                        <input placeholder="nombre clave" id="" type="text" class="validate" name="findname" required>
+                        <label for="nombre clave">Buscar dominio</label>
+                    </div>
+                    <div class="card-action">
+                        <div class="form-field">
+                            <button class="btn waves-effect waves-green green darken-2" type="submit" name="Submit">
+                                Buscar
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
             {% else %}
+                <div class="row">
+                    <div class="col s12 m6 l6">
+                        <form method="GET" action="/domain/1">
+                        <h5>Filtrar por zona de dominio</h5>
+                        <div class="input-field col s8 m8 l8">
+                            <select class="blue-text text-darken-2" id="select" name="res" required>
+                                <option value="" disabled selected>Selecciona tu zona de dominio aquí</option>
+                                {% for res in zone %}
+                                    <option value="{{res['id']}}">{{res['zones']}}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-field">
+                                <button class="btn waves-effect waves-green green darken-2" type="submit">filtrar
+                                </button>
+                            </div>
+                        </div>
+                        </form>
+                    </div>
+                    <div class="col s12  m6 l6">
+                    <form method="POST" action="/pagedomainadd">
+                        <h5>Agregar nuevo dominio</h5><br>
+                        <div class="form-field">
+                            <button class="btn waves-effect waves-green green darken-2" type="submit" name="Submit">
+                                Agregar dominio
+                            </button>
+                        </div>
+                    </form>
+                    </div>
+                </div>
                 <h5>Todos los subdominios</h5>
             {% endif %}
             
